@@ -2,6 +2,12 @@
 /dist
 /node_modules
 
+# ENV
+.env
+
+# LOCK
+yarn.lock
+
 # Logs
 logs
 *.log
