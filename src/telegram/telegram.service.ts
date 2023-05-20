@@ -1,8 +1,9 @@
-import { Command, Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
+import { Command, Ctx, Start, Update } from 'nestjs-telegraf';
 import { Scenes, Telegraf } from 'telegraf';
 import { ConfigService } from '@nestjs/config';
 import { ChatgptService } from '@/chatgpt/chatgpt.service';
 import { InstagramService } from '@/instagram/instagram.service';
+import { actionButtons } from '@/telegram/telegram-buttons';
 
 type Context = Scenes.SceneContext;
 
@@ -19,6 +20,10 @@ export class TelegramService extends Telegraf<Context> {
   startMessage(@Ctx() ctx: Context) {
     ctx.telegram.setMyCommands([
       {
+        command: 'start',
+        description: 'Starting message',
+      },
+      {
         command: 'image',
         description: 'Generate images',
       },
@@ -27,40 +32,31 @@ export class TelegramService extends Telegraf<Context> {
         description: 'Ask a question from bot',
       },
     ]);
+    ctx.reply('Your buttons', actionButtons());
     ctx.replyWithHTML('<b>Glory to Ukraine!</b>');
   }
   // @On('text')
   // onMessage(@Message('text') message: string, @Ctx() ctx: Context) {
-  //   return this.gpt.generateChatResponse(message);
+  //   return this.chatGptService.generateChatResponse(message);
+  // }
+  //
+  // @On('text')
+  // async image(@Message('text') message: string, @Ctx() ctx: Context) {
+  //   ctx.replyWithPhoto(await this.chatGptService.generateImage(message));
   // }
 
   // @On('text')
-  // async image(@Message('text') message: string, @Ctx() ctx: Context) {
-  //   ctx.replyWithPhoto(await this.gpt.generateImage(message));
-  // }
-
-  // @Command('image')
-  // onImage(@Ctx() ctx: Context) {
-  //   console.log(ctx);
-  // }
+  // async inst(@Message('text') message: string, @Ctx() ctx: Context) {
+  //   const regex =
+  //     /https?:\/\/(?:www\.)?instagram\.com\/(?:reel|stories|p)\/[A-Za-z0-9_\-]+/;
   //
-  // @Command('chat')
-  // onChat(@Ctx() ctx: Context) {
-  //   console.log(ctx);
+  //   if (regex.test(message)) {
+  //     ctx.replyWithVideo(
+  //       await this.instagramService.instagramDownload(message),
+  //       {
+  //         reply_to_message_id: ctx.message.message_id,
+  //       },
+  //     );
+  //   }
   // }
-
-  @On('text')
-  async inst(@Message('text') message: string, @Ctx() ctx: Context) {
-    const regex =
-      /https?:\/\/(?:www\.)?instagram\.com\/(?:reel|stories|p)\/[A-Za-z0-9_\-]+/;
-
-    if (regex.test(message)) {
-      ctx.replyWithVideo(
-        await this.instagramService.instagramDownload(message),
-        {
-          reply_to_message_id: ctx.message.message_id,
-        },
-      );
-    }
-  }
 }
