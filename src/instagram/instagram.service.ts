@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, of } from 'rxjs';
-import * as fs from 'fs';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -35,7 +34,6 @@ export class InstagramService {
       this.httpService.get(this.instagramApiUrl, options).pipe(
         catchError((err) => {
           this.logger.error(err);
-          console.log(err);
           return of(err.response.statusText);
         }),
       ),
