@@ -5,8 +5,9 @@ import { ChatgptService } from '@/chatgpt/chatgpt.service';
 import { InstagramService } from '@/instagram/instagram.service';
 import { TiktokService } from '@/tiktok/tiktok.service';
 import { MediaGroup } from 'telegraf/typings/telegram-types';
+import { ConversionService } from '@/telegram/conversion/conversion.service';
 
-type Context = Scenes.SceneContext;
+export type Context = Scenes.SceneContext;
 
 @Update()
 export class TelegramService extends Telegraf<Context> {
@@ -15,6 +16,7 @@ export class TelegramService extends Telegraf<Context> {
     private readonly chatGptService: ChatgptService,
     private readonly instagramService: InstagramService,
     private readonly tiktokService: TiktokService,
+    private readonly conversionService: ConversionService,
   ) {
     super(configService.get('TELEGRAM_API'));
   }
@@ -62,22 +64,22 @@ export class TelegramService extends Telegraf<Context> {
     }
   }
 
-  @Command('image')
-  async onImage(@Message('text') message: string, @Ctx() ctx: Context) {
-    const [cmd, ...text] = message.split(' ');
-
-    const prompt = text.join(' ');
-
-    if (!prompt) {
-      ctx.reply('Bad request!', {
-        reply_to_message_id: ctx.message.message_id,
-      });
-    } else {
-      ctx.replyWithHTML(await this.chatGptService.generateImage(message), {
-        reply_to_message_id: ctx.message.message_id,
-      });
-    }
-  }
+  // @Command('image')
+  // async onImage(@Message('text') message: string, @Ctx() ctx: Context) {
+  //   const [cmd, ...text] = message.split(' ');
+  //
+  //   const prompt = text.join(' ');
+  //
+  //   if (!prompt) {
+  //     ctx.reply('Bad request!', {
+  //       reply_to_message_id: ctx.message.message_id,
+  //     });
+  //   } else {
+  //     ctx.replyWithHTML(await this.chatGptService.generateImage(message), {
+  //       reply_to_message_id: ctx.message.message_id,
+  //     });
+  //   }
+  // }
 
   @Command('all')
   async pingAll(@Ctx() ctx: Context) {
@@ -96,6 +98,26 @@ export class TelegramService extends Telegraf<Context> {
     } catch {
       ctx.reply('Smth went wrong. Try again!');
     }
+  }
+
+  @On('voice')
+  async transcribeAudio(@Message('voice') voice, @Ctx() ctx: Context) {
+    const fileId = voice.file_id;
+
+    await this.conversionService.convertOggToMp3(fileId, ctx);
+
+    ctx.reply('done');
+    // const res = await this.chatGptService.transcribeAudio(link);
+    //
+    // if (res) {
+    //   ctx.reply(res, {
+    //     reply_to_message_id: ctx.message.message_id,
+    //   });
+    // } else {
+    //   ctx.reply('Smth went wrong. Try again!', {
+    //     reply_to_message_id: ctx.message.message_id,
+    //   });
+    // }
   }
 
   @On('text')

@@ -5,6 +5,7 @@ import { options } from './telegraf-config.factory';
 import { ChatgptModule } from '@/chatgpt/chatgpt.module';
 import { InstagramModule } from '@/instagram/instagram.module';
 import { TiktokModule } from '@/tiktok/tiktok.module';
+import { ConversionService } from './conversion/conversion.service';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { TiktokModule } from '@/tiktok/tiktok.module';
     InstagramModule,
     TiktokModule,
   ],
-  providers: [TelegramService],
+  providers: [TelegramService, ConversionService],
 })
 export class TelegramModule {}

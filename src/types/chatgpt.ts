@@ -22,3 +22,7 @@ export interface ImageGenerateResponse {
   created: number;
   data: { url: string }[];
 }
+
+export interface TranscribeAudioResponse {
+  text: string;
+}
