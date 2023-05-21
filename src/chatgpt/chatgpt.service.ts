@@ -2,31 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom, of } from 'rxjs';
-
-interface ChatGptAnswer {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-  choices: {
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-    index: number;
-  }[];
-}
-
-interface ImageGenerateAnswer {
-  created: number;
-  data: { url: string }[];
-}
+import { ChatGptAnswer, ImageGenerateAnswer } from '@/types/chatgpt';
 
 @Injectable()
 export class ChatgptService {
