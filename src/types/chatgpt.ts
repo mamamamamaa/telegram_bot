@@ -1,4 +1,4 @@
-export interface ChatGptAnswer {
+export interface ChatGptResponse {
   id: string;
   object: string;
   created: number;
@@ -18,7 +18,7 @@ export interface ChatGptAnswer {
   }[];
 }
 
-export interface ImageGenerateAnswer {
+export interface ImageGenerateResponse {
   created: number;
   data: { url: string }[];
 }

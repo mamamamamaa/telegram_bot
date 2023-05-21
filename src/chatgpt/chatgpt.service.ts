@@ -2,21 +2,21 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom, of } from 'rxjs';
-import { ChatGptAnswer, ImageGenerateAnswer } from '@/types/chatgpt';
+import { ChatGptResponse, ImageGenerateResponse } from '@/types/chatgpt';
 
 @Injectable()
 export class ChatgptService {
   private readonly logger = new Logger(ChatgptService.name);
-  private readonly chatGptUrl;
-  private readonly imageGenerationUrl;
+  private readonly chatGptUrl = 'https://api.openai.com/v1/chat/completions';
+  private readonly imageGenerationUrl =
+    'https://api.openai.com/v1/images/generations';
+  private readonly audioTranscribesUrl =
+    'https://api.openai.com/v1/audio/transcriptions';
 
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {
-    this.chatGptUrl = 'https://api.openai.com/v1/chat/completions';
-    this.imageGenerationUrl = 'https://api.openai.com/v1/images/generations';
-
     const apiKey = this.configService.get('OPENAI_API');
 
     this.httpService.axiosRef.defaults.headers.common = {
@@ -24,6 +24,8 @@ export class ChatgptService {
       Authorization: `Bearer ${apiKey}`,
     };
   }
+
+  async transcribeAudio(audio) {}
 
   async generateChatResponse(content: string): Promise<string> {
     const reqData = {
@@ -33,7 +35,7 @@ export class ChatgptService {
     };
 
     const { data } = await firstValueFrom(
-      this.httpService.post<ChatGptAnswer>(this.chatGptUrl, reqData).pipe(
+      this.httpService.post<ChatGptResponse>(this.chatGptUrl, reqData).pipe(
         catchError((err) => {
           this.logger.error(err);
           return of(err.response.statusText);
@@ -53,7 +55,7 @@ export class ChatgptService {
 
     const { data } = await firstValueFrom(
       this.httpService
-        .post<ImageGenerateAnswer>(this.imageGenerationUrl, reqData)
+        .post<ImageGenerateResponse>(this.imageGenerationUrl, reqData)
         .pipe(
           catchError((err) => {
             this.logger.error(err);
