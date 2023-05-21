@@ -8,14 +8,15 @@ export class InstagramService {
   private readonly logger = new Logger(InstagramService.name);
   private readonly rapidApiKey: string;
 
-  private readonly instagramApiUrl: string;
+  private readonly instagramApiUrl =
+    'https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index';
+  private readonly instagramApiHost =
+    'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com';
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.rapidApiKey = configService.get('RAPID_API');
-    this.instagramApiUrl =
-      'https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index';
+    this.rapidApiKey = configService.get('RAPID_API_V1');
   }
 
   async instagramDownload(url: string) {
@@ -24,9 +25,8 @@ export class InstagramService {
         url,
       },
       headers: {
-        'X-RapidAPI-Key': '6567c6a3e6msh7b7de88af21691ap194b34jsnc7bf7d40f714',
-        'X-RapidAPI-Host':
-          'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com',
+        'X-RapidAPI-Key': this.rapidApiKey,
+        'X-RapidAPI-Host': this.instagramApiHost,
       },
     };
 
