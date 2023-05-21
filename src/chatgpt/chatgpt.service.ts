@@ -59,6 +59,7 @@ export class ChatgptService {
     const { data } = await firstValueFrom(
       this.httpService.post<ChatGptAnswer>(this.chatGptUrl, reqData).pipe(
         catchError((err) => {
+          console.log(err);
           this.logger.error(err);
           return of(err.response.statusText);
         }),

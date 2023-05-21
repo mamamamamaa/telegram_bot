@@ -1,4 +1,4 @@
-import { Command, Ctx, Start, Update } from 'nestjs-telegraf';
+import { Command, Ctx, Message, On, Start, Update } from 'nestjs-telegraf';
 import { Scenes, Telegraf } from 'telegraf';
 import { ConfigService } from '@nestjs/config';
 import { ChatgptService } from '@/chatgpt/chatgpt.service';
@@ -32,18 +32,48 @@ export class TelegramService extends Telegraf<Context> {
         description: 'Ask a question from bot',
       },
     ]);
-    ctx.reply('Your buttons', actionButtons());
     ctx.replyWithHTML('<b>Glory to Ukraine!</b>');
   }
-  // @On('text')
-  // onMessage(@Message('text') message: string, @Ctx() ctx: Context) {
-  //   return this.chatGptService.generateChatResponse(message);
-  // }
-  //
-  // @On('text')
-  // async image(@Message('text') message: string, @Ctx() ctx: Context) {
-  //   ctx.replyWithPhoto(await this.chatGptService.generateImage(message));
-  // }
+  @Command('chat')
+  async onChat(@Message('text') message, @Ctx() ctx: Context) {
+    const [cmd, ...text] = message.split(' ');
+
+    const prompt = text.join(' ');
+
+    if (!prompt) {
+      ctx.reply('Bad request!', {
+        reply_to_message_id: ctx.message.message_id,
+      });
+    } else {
+      ctx.replyWithHTML(
+        await this.chatGptService.generateChatResponse(message),
+        {
+          reply_to_message_id: ctx.message.message_id,
+        },
+      );
+    }
+  }
+
+  @Command('image')
+  async onImage(@Message('text') message: string, @Ctx() ctx: Context) {
+    const [cmd, ...text] = message.split(' ');
+
+    const prompt = text.join(' ');
+
+    if (!prompt) {
+      ctx.reply('Bad request!', {
+        reply_to_message_id: ctx.message.message_id,
+      });
+    } else {
+      ctx.replyWithHTML(
+        await this.chatGptService.generateChatResponse(message),
+        {
+          reply_to_message_id: ctx.message.message_id,
+        },
+      );
+    }
+    ctx.replyWithPhoto(await this.chatGptService.generateImage(message));
+  }
 
   // @On('text')
   // async inst(@Message('text') message: string, @Ctx() ctx: Context) {
