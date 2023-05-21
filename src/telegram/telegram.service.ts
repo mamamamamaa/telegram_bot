@@ -3,7 +3,6 @@ import { Scenes, Telegraf } from 'telegraf';
 import { ConfigService } from '@nestjs/config';
 import { ChatgptService } from '@/chatgpt/chatgpt.service';
 import { InstagramService } from '@/instagram/instagram.service';
-import { actionButtons } from '@/telegram/telegram-buttons';
 
 type Context = Scenes.SceneContext;
 
@@ -65,28 +64,24 @@ export class TelegramService extends Telegraf<Context> {
         reply_to_message_id: ctx.message.message_id,
       });
     } else {
-      ctx.replyWithHTML(
-        await this.chatGptService.generateChatResponse(message),
+      ctx.replyWithHTML(await this.chatGptService.generateImage(message), {
+        reply_to_message_id: ctx.message.message_id,
+      });
+    }
+  }
+
+  @On('text')
+  async inst(@Message('text') message: string, @Ctx() ctx: Context) {
+    const regex =
+      /https?:\/\/(?:www\.)?instagram\.com\/(?:reel|stories|p)\/[A-Za-z0-9_\-]+/;
+
+    if (regex.test(message)) {
+      ctx.replyWithVideo(
+        await this.instagramService.instagramDownload(message),
         {
           reply_to_message_id: ctx.message.message_id,
         },
       );
     }
-    ctx.replyWithPhoto(await this.chatGptService.generateImage(message));
   }
-
-  // @On('text')
-  // async inst(@Message('text') message: string, @Ctx() ctx: Context) {
-  //   const regex =
-  //     /https?:\/\/(?:www\.)?instagram\.com\/(?:reel|stories|p)\/[A-Za-z0-9_\-]+/;
-  //
-  //   if (regex.test(message)) {
-  //     ctx.replyWithVideo(
-  //       await this.instagramService.instagramDownload(message),
-  //       {
-  //         reply_to_message_id: ctx.message.message_id,
-  //       },
-  //     );
-  //   }
-  // }
 }
