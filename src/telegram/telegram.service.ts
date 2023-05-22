@@ -104,20 +104,28 @@ export class TelegramService extends Telegraf<Context> {
   async transcribeAudio(@Message('voice') voice, @Ctx() ctx: Context) {
     const fileId = voice.file_id;
 
-    await this.conversionService.convertOggToMp3(fileId, ctx);
+    const file = await ctx.telegram.getFileLink(fileId);
+    const path = await this.conversionService.convertOggToMp3(file);
 
-    ctx.reply('done');
-    // const res = await this.chatGptService.transcribeAudio(link);
-    //
-    // if (res) {
-    //   ctx.reply(res, {
-    //     reply_to_message_id: ctx.message.message_id,
-    //   });
-    // } else {
-    //   ctx.reply('Smth went wrong. Try again!', {
-    //     reply_to_message_id: ctx.message.message_id,
-    //   });
-    // }
+    if (!path) {
+      ctx.reply('Smth went wrong. Try again!', {
+        reply_to_message_id: ctx.message.message_id,
+      });
+      return;
+    }
+
+    const res = await this.chatGptService.transcribeAudio(path);
+
+    if (!res) {
+      ctx.reply('Smth went wrong. Try again!', {
+        reply_to_message_id: ctx.message.message_id,
+      });
+      return;
+    }
+
+    ctx.reply(res, {
+      reply_to_message_id: ctx.message.message_id,
+    });
   }
 
   @On('text')

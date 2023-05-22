@@ -1,40 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import * as ffmpeg from 'fluent-ffmpeg';
-import { promisify } from 'util';
-import { Context } from '@/telegram/telegram.service';
-
-const ffprobe = promisify(ffmpeg.ffprobe);
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ConversionService {
-  async convertOggToMp3(fileId: string, ctx: Context): Promise<void> {
-    const fileLink = await ctx.telegram.getFileLink(fileId);
-    const oggFilePath = fileLink.href;
-    const mp3FilePath = oggFilePath.replace('.ogg', '.mp3');
+  constructor(private readonly httpService: HttpService) {}
+  async convertOggToMp3(link: URL) {
+    const inputFilePath = path.join(
+      __dirname,
+      '../',
+      '../',
+      '../',
+      'temp',
+      'voice.ogg',
+    );
+    const uploadFilePath = path.join(
+      __dirname,
+      '../',
+      '../',
+      '../',
+      'temp',
+      'voice.mp3',
+    );
 
     try {
-      const { streams } = await ffprobe(oggFilePath);
-      const audioStream = streams.find(
-        (stream) => stream.codec_type === 'audio',
+      const { data: fileBuffer } = await firstValueFrom(
+        this.httpService.get(link.href, { responseType: 'arraybuffer' }),
       );
 
-      if (!audioStream) {
-        throw new Error('Input file does not contain an audio stream.');
-      }
+      fs.writeFileSync(inputFilePath, fileBuffer);
+      fs.writeFileSync(uploadFilePath, 'tempFile');
 
-      const ffmpegCommand = ffmpeg();
+      ffmpeg(inputFilePath)
+        .audioCodec('libmp3lame')
+        .on('end', () => console.log('Success!'))
+        .on('error', (err) => console.log(err.message))
+        .save(uploadFilePath);
 
-      ffmpegCommand.input(oggFilePath);
-      ffmpegCommand.output(mp3FilePath);
-      ffmpegCommand.audioCodec('libmp3lame');
-      ffmpegCommand.format('mp3');
-
-      console.log('hrere');
-      await promisify(ffmpegCommand.run).bind(ffmpegCommand)();
-      await ctx.replyWithAudio({ source: mp3FilePath });
-    } catch (error) {
-      console.error('Error converting OGG to MP3:', error);
-      // Handle the error appropriately
+      return uploadFilePath;
+    } catch {
+      return false;
     }
   }
 }

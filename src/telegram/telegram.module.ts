@@ -6,6 +6,7 @@ import { ChatgptModule } from '@/chatgpt/chatgpt.module';
 import { InstagramModule } from '@/instagram/instagram.module';
 import { TiktokModule } from '@/tiktok/tiktok.module';
 import { ConversionService } from './conversion/conversion.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ConversionService } from './conversion/conversion.service';
     ChatgptModule,
     InstagramModule,
     TiktokModule,
+    HttpModule,
   ],
   providers: [TelegramService, ConversionService],
 })

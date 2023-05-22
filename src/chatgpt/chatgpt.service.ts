@@ -2,9 +2,13 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom, of } from 'rxjs';
-import { ChatGptResponse, ImageGenerateResponse } from '@/types/chatgpt';
+import {
+  ChatGptResponse,
+  ImageGenerateResponse,
+  TranscribeAudioResponse,
+} from '@/types/chatgpt';
+
 import * as fs from 'fs';
-import * as path from 'path';
 
 @Injectable()
 export class ChatgptService {
@@ -26,98 +30,37 @@ export class ChatgptService {
     };
   }
 
-  // async transcribeAudio(link: URL): Promise<string | false> {
-  //   try {
-  //     const fileResponse = await firstValueFrom(
-  //       this.httpService.get(link.href, { responseType: 'arraybuffer' }),
-  //     );
-  //
-  //     const mp3Buffer = fileResponse.data;
-  //
-  //     const uploadPath = path.join(
-  //       __dirname,
-  //       '../',
-  //       '../',
-  //       'temp',
-  //       'voice.mp3',
-  //     );
-  //
-  //     const obj = {
-  //       data: mp3Buffer,
-  //     };
-  //
-  //     await fs.writeFileSync(uploadPath, mp3Buffer);
-  //
-  //     const reqData = {
-  //       file: mp3Buffer,
-  //       model: 'whisper-1',
-  //     };
-  //
-  //     const formData = new FormData();
-  //     formData.append('file', fs.createReadStream(uploadPath));
-  //     formData.append('model', 'whisper-1');
-  //
-  //     const { data } = await firstValueFrom(
-  //       this.httpService
-  //         .post<TranscribeAudioResponse>(this.audioTranscribesUrl, formData, {
-  //           headers: { 'Content-Type': 'multipart/form-data' },
-  //         })
-  //         .pipe(
-  //           catchError((err) => {
-  //             this.logger.error(err);
-  //             return of(err.response.statusText);
-  //           }),
-  //         ),
-  //     );
-  //
-  //     return data.text;
-  //   } catch (err) {
-  //     return false;
-  //   }
-  // }
-
-  async transcribeAudio(link: URL): Promise<string | false> {
+  async transcribeAudio(uploadFilePath: string): Promise<string | false> {
     try {
-      const fileResponse = await firstValueFrom(
-        this.httpService.get(link.href, { responseType: 'arraybuffer' }),
-      );
-
-      const mp3Buffer = fileResponse.data;
-
-      const uploadPath = path.join(
-        __dirname,
-        '../',
-        '../',
-        'temp',
-        `${fileResponse.statusText}.mp3`,
-      );
-
-      console.log(uploadPath);
-
-      await fs.writeFileSync(uploadPath, mp3Buffer);
-
-      const formData = {
-        file: fs.createReadStream(uploadPath),
+      const reqData = {
+        file: fs.createReadStream(uploadFilePath),
         model: 'whisper-1',
       };
 
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-      };
+      const formData = new FormData();
+      const file = new File();
+      const fileData = fs.readFileSync(uploadFilePath);
 
-      const res = await firstValueFrom(
-        this.httpService.post(
-          'https://api.openai.com/v1/audio/transcriptions',
-          JSON.stringify(formData),
-          { headers },
-        ),
+      const blob = new Blob([fileData]);
+
+      formData.append('file', blob, 'file.jpg');
+      formData.append('model', 'whisper-1');
+
+      const { data } = await firstValueFrom(
+        this.httpService
+          .post<TranscribeAudioResponse>(this.audioTranscribesUrl, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+          .pipe(
+            catchError((err) => {
+              this.logger.error(err);
+              return of(err.response.statusText);
+            }),
+          ),
       );
 
-      console.log(res);
-
-      return 'dasdas';
+      return data.text;
     } catch (err) {
-      console.log(err);
       return false;
     }
   }
