@@ -1,0 +1,14 @@
+.idea
+
+dist
+node_modules
+
+.gitignore
+.dockerignore
+
+yarn.lock
+
+.prettierrc
+.eslintrc.js
+
+Dockerfile
