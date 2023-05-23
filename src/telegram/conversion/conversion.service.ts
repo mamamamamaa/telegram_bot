@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as ffmpeg from 'fluent-ffmpeg';
+import * as ffmpegPath from '@ffmpeg-installer/ffmpeg';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as fs from 'fs';
@@ -7,7 +8,9 @@ import * as path from 'path';
 
 @Injectable()
 export class ConversionService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService) {
+    ffmpeg.setFfmpegPath(ffmpegPath.path);
+  }
   async convertOggToMp3(link: URL) {
     const inputFilePath = path.join(
       __dirname,
@@ -15,7 +18,7 @@ export class ConversionService {
       '../',
       '../',
       'temp',
-      'voice.ogg',
+      'voice.oga',
     );
     const uploadFilePath = path.join(
       __dirname,
@@ -23,7 +26,7 @@ export class ConversionService {
       '../',
       '../',
       'temp',
-      'voice.mp3',
+      'voice.wav',
     );
 
     try {
@@ -31,14 +34,9 @@ export class ConversionService {
         this.httpService.get(link.href, { responseType: 'arraybuffer' }),
       );
 
-      fs.writeFileSync(inputFilePath, fileBuffer);
-      fs.writeFileSync(uploadFilePath, 'tempFile');
+      await fs.writeFileSync(inputFilePath, fileBuffer);
 
-      ffmpeg(inputFilePath)
-        .audioCodec('libmp3lame')
-        .on('end', () => console.log('Success!'))
-        .on('error', (err) => console.log(err.message))
-        .save(uploadFilePath);
+      await ffmpeg(inputFilePath).toFormat('wav').save(uploadFilePath);
 
       return uploadFilePath;
     } catch {

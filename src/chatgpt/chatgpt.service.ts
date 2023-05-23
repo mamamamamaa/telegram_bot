@@ -7,6 +7,7 @@ import {
   ImageGenerateResponse,
   TranscribeAudioResponse,
 } from '@/types/chatgpt';
+import * as FormData from 'form-data';
 
 import * as fs from 'fs';
 
@@ -32,35 +33,29 @@ export class ChatgptService {
 
   async transcribeAudio(uploadFilePath: string): Promise<string | false> {
     try {
-      const reqData = {
-        file: fs.createReadStream(uploadFilePath),
-        model: 'whisper-1',
-      };
-
       const formData = new FormData();
-      const file = new File();
-      const fileData = fs.readFileSync(uploadFilePath);
-
-      const blob = new Blob([fileData]);
-
-      formData.append('file', blob, 'file.jpg');
+      formData.append('file', await fs.createReadStream(uploadFilePath));
       formData.append('model', 'whisper-1');
 
       const { data } = await firstValueFrom(
         this.httpService
           .post<TranscribeAudioResponse>(this.audioTranscribesUrl, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+            headers: formData.getHeaders(),
           })
           .pipe(
             catchError((err) => {
+              console.log(err.response.data);
               this.logger.error(err);
               return of(err.response.statusText);
             }),
           ),
       );
 
+      console.log(data);
+
       return data.text;
     } catch (err) {
+      console.log(err);
       return false;
     }
   }

@@ -107,6 +107,9 @@ export class TelegramService extends Telegraf<Context> {
     const file = await ctx.telegram.getFileLink(fileId);
     const path = await this.conversionService.convertOggToMp3(file);
 
+    console.log(file);
+    console.log(path);
+
     if (!path) {
       ctx.reply('Smth went wrong. Try again!', {
         reply_to_message_id: ctx.message.message_id,

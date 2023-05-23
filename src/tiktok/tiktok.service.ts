@@ -40,7 +40,6 @@ export class TiktokService {
         }),
       ),
     );
-
     return data;
   }
 }
