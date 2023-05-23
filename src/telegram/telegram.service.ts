@@ -100,36 +100,33 @@ export class TelegramService extends Telegraf<Context> {
     }
   }
 
-  @On('voice')
-  async transcribeAudio(@Message('voice') voice, @Ctx() ctx: Context) {
-    const fileId = voice.file_id;
-
-    const file = await ctx.telegram.getFileLink(fileId);
-    const path = await this.conversionService.convertOggToMp3(file);
-
-    console.log(file);
-    console.log(path);
-
-    if (!path) {
-      ctx.reply('Smth went wrong. Try again!', {
-        reply_to_message_id: ctx.message.message_id,
-      });
-      return;
-    }
-
-    const res = await this.chatGptService.transcribeAudio(path);
-
-    if (!res) {
-      ctx.reply('Smth went wrong. Try again!', {
-        reply_to_message_id: ctx.message.message_id,
-      });
-      return;
-    }
-
-    ctx.reply(res, {
-      reply_to_message_id: ctx.message.message_id,
-    });
-  }
+  // @On('voice')
+  // async transcribeAudio(@Message('voice') voice, @Ctx() ctx: Context) {
+  //   const fileId = voice.file_id;
+  //
+  //   const file = await ctx.telegram.getFileLink(fileId);
+  //   const path = await this.conversionService.convertOggToMp3(file);
+  //
+  //   if (!path) {
+  //     ctx.reply('Smth went wrong. Try again!', {
+  //       reply_to_message_id: ctx.message.message_id,
+  //     });
+  //     return;
+  //   }
+  //
+  //   const res = await this.chatGptService.transcribeAudio(path);
+  //
+  //   if (!res) {
+  //     ctx.reply('Smth went wrong. Try again!', {
+  //       reply_to_message_id: ctx.message.message_id,
+  //     });
+  //     return;
+  //   }
+  //
+  //   ctx.reply(res, {
+  //     reply_to_message_id: ctx.message.message_id,
+  //   });
+  // }
 
   @On('text')
   async socialMedia(@Message('text') message: string, @Ctx() ctx: Context) {
