@@ -135,16 +135,16 @@ export class TelegramService extends Telegraf<Context> {
 
     const tiktokLinkRegex = /https?:\/\/vm\.tiktok\.com\/[a-zA-Z0-9]+\/?/;
 
-    const currentTime = Date.now();
-    const messageTime = new Date(ctx.message.date * 1000);
-
-    const minutesPassed = Math.floor(
-      (currentTime - messageTime.getTime()) / (1000 * 60),
-    );
-
-    if (minutesPassed > 10) {
-      return;
-    }
+    // const currentTime = Date.now();
+    // const messageTime = new Date(ctx.message.date * 1000);
+    //
+    // const minutesPassed = Math.floor(
+    //   (currentTime - messageTime.getTime()) / (1000 * 60),
+    // );
+    //
+    // if (minutesPassed > 10) {
+    //   return;
+    // }
 
     if (instaLinkRegex.test(message)) {
       ctx.replyWithVideo(
