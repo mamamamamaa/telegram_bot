@@ -16,7 +16,7 @@ export class InstagramService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.rapidApiKey = configService.get('RAPID_API_V1');
+    this.rapidApiKey = configService.get('RAPID_API_V4');
   }
 
   async instagramDownload(url: string) {
@@ -38,7 +38,6 @@ export class InstagramService {
         }),
       ),
     );
-
     return data.media;
   }
 }

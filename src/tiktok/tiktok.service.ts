@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, of } from 'rxjs';
-import * as fs from 'fs';
 import { ConfigService } from '@nestjs/config';
 import { TiktokResponse } from '@/types/tiktok';
 
@@ -18,7 +17,7 @@ export class TiktokService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.rapidApiKey = configService.get('RAPID_API_V1');
+    this.rapidApiKey = configService.get('RAPID_API_V4');
   }
 
   async tiktokDownload(url: string): Promise<TiktokResponse> {

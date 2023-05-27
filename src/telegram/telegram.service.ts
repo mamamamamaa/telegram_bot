@@ -135,24 +135,22 @@ export class TelegramService extends Telegraf<Context> {
 
     const tiktokLinkRegex = /https?:\/\/vm\.tiktok\.com\/[a-zA-Z0-9]+\/?/;
 
-    // const currentTime = Date.now();
-    // const messageTime = new Date(ctx.message.date * 1000);
-    //
-    // const minutesPassed = Math.floor(
-    //   (currentTime - messageTime.getTime()) / (1000 * 60),
-    // );
-    //
-    // if (minutesPassed > 10) {
-    //   return;
-    // }
-
     if (instaLinkRegex.test(message)) {
-      ctx.replyWithVideo(
-        await this.instagramService.instagramDownload(message),
-        {
+      const res = await this.instagramService.instagramDownload(message);
+
+      if (typeof res === 'string') {
+        ctx.replyWithVideo(res, {
           reply_to_message_id: ctx.message.message_id,
-        },
-      );
+        });
+      } else {
+        const group: MediaGroup = res.map((img) => ({
+          type: 'photo',
+          media: img,
+        }));
+        ctx.replyWithMediaGroup(group, {
+          reply_to_message_id: ctx.message.message_id,
+        });
+      }
     } else if (tiktokLinkRegex.test(message)) {
       const { data } = await this.tiktokService.tiktokDownload(message);
 
