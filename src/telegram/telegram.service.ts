@@ -142,7 +142,7 @@ export class TelegramService extends Telegraf<Context> {
       (currentTime - messageTime.getTime()) / (1000 * 60),
     );
 
-    if (minutesPassed < 10) {
+    if (minutesPassed > 10) {
       return;
     }
 
