@@ -6,6 +6,7 @@ import { InstagramService } from '@/instagram/instagram.service';
 import { TiktokService } from '@/tiktok/tiktok.service';
 import { MediaGroup } from 'telegraf/typings/telegram-types';
 import { ConversionService } from '@/telegram/conversion/conversion.service';
+import { instagramLinkRegex, tiktokLinkRegex } from '@/utils/regexs';
 
 export type Context = Scenes.SceneContext;
 
@@ -130,27 +131,8 @@ export class TelegramService extends Telegraf<Context> {
 
   @On('text')
   async socialMedia(@Message('text') message: string, @Ctx() ctx: Context) {
-    const instaLinkRegex =
-      /https?:\/\/(?:www\.)?instagram\.com\/(?:reel|stories|p)\/[A-Za-z0-9_\-]+/;
-
-    const tiktokLinkRegex = /https?:\/\/vm\.tiktok\.com\/[a-zA-Z0-9]+\/?/;
-
-    if (instaLinkRegex.test(message)) {
-      const res = await this.instagramService.instagramDownload(message);
-
-      if (typeof res === 'string') {
-        ctx.replyWithVideo(res, {
-          reply_to_message_id: ctx.message.message_id,
-        });
-      } else {
-        const group: MediaGroup = res.map((img) => ({
-          type: 'photo',
-          media: img,
-        }));
-        ctx.replyWithMediaGroup(group, {
-          reply_to_message_id: ctx.message.message_id,
-        });
-      }
+    if (instagramLinkRegex.test(message)) {
+      await this.instagramService.instagramDownload(message, ctx);
     } else if (tiktokLinkRegex.test(message)) {
       const { data } = await this.tiktokService.tiktokDownload(message);
 
