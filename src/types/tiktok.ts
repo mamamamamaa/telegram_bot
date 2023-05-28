@@ -1,3 +1,5 @@
+import { IInstagramReqOptions } from '@/types/instagram';
+
 export interface TiktokResponse {
   code: number;
   msg: string;
@@ -40,3 +42,4 @@ export interface TiktokResponse {
     images?: string[];
   };
 }
+export type TTiktokReqOptions = IInstagramReqOptions;

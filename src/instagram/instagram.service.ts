@@ -4,11 +4,12 @@ import { catchError, firstValueFrom, of } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { Context } from '@/telegram/telegram.service';
 import { MediaGroup } from 'telegraf/typings/telegram-types';
+import { IInstagramReqOptions } from '@/types/instagram';
 
 @Injectable()
 export class InstagramService {
   private readonly logger = new Logger(InstagramService.name);
-  private readonly options: IReqOptions;
+  private readonly options: IInstagramReqOptions;
   private readonly instagramApiUrl =
     'https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index';
   constructor(
@@ -18,11 +19,11 @@ export class InstagramService {
     this.options = {
       params: {
         url: null,
-        headers: {
-          'X-RapidAPI-Host':
-            'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com',
-          'X-RapidAPI-Key': configService.get('RAPID_API_V4'),
-        },
+      },
+      headers: {
+        'X-RapidAPI-Host':
+          'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com',
+        'X-RapidAPI-Key': configService.get('RAPID_API_V4'),
       },
     };
   }
@@ -31,6 +32,8 @@ export class InstagramService {
     const extraReplyOptions = {
       reply_to_message_id: ctx.message.message_id,
     };
+
+    this.options.params.url = url;
 
     try {
       const { data } = await firstValueFrom(

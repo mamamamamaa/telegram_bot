@@ -2,43 +2,64 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { TiktokResponse } from '@/types/tiktok';
+import { TiktokResponse, TTiktokReqOptions } from '@/types/tiktok';
+import { Context } from '@/telegram/telegram.service';
+import { MediaGroup } from 'telegraf/typings/telegram-types';
 
 @Injectable()
 export class TiktokService {
   private readonly logger = new Logger(TiktokService.name);
-  private readonly rapidApiKey: string;
-
+  private readonly options: TTiktokReqOptions;
   private readonly tiktokApiUrl =
     'https://tiktok-video-no-watermark2.p.rapidapi.com/';
-  private readonly tiktokApiHost = 'tiktok-video-no-watermark2.p.rapidapi.com';
 
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.rapidApiKey = configService.get('RAPID_API_V4');
-  }
-
-  async tiktokDownload(url: string): Promise<TiktokResponse> {
-    const options = {
+    this.options = {
       params: {
-        url,
+        url: null,
       },
       headers: {
-        'X-RapidAPI-Key': this.rapidApiKey,
-        'X-RapidAPI-Host': this.tiktokApiHost,
+        'X-RapidAPI-Key': configService.get('RAPID_API_V4'),
+        'X-RapidAPI-Host': "tiktok-video-no-watermark2.p.rapidapi.com'",
       },
     };
+  }
 
-    const { data } = await firstValueFrom(
-      this.httpService.get<TiktokResponse>(this.tiktokApiUrl, options).pipe(
-        catchError((err) => {
-          this.logger.error(err);
-          return of(err.response.statusText);
-        }),
-      ),
-    );
-    return data;
+  async tiktokDownload(url: string, ctx: Context): Promise<TiktokResponse> {
+    const extraReplyOptions = {
+      reply_to_message_id: ctx.message.message_id,
+    };
+
+    this.options.params.url = url;
+
+    try {
+      const { data: reqData } = await firstValueFrom(
+        this.httpService
+          .get<TiktokResponse>(this.tiktokApiUrl, this.options)
+          .pipe(
+            catchError((err) => {
+              this.logger.error(err);
+              return of(err.response.statusText);
+            }),
+          ),
+      );
+
+      if (!reqData.reqData?.images) {
+        await ctx.replyWithVideo(reqData.play, extraReplyOptions);
+        return;
+      }
+
+      const group: MediaGroup = reqData.images.map((img) => ({
+        type: 'photo',
+        media: img,
+      }));
+
+      await ctx.replyWithMediaGroup(group, extraReplyOptions);
+    } catch (error) {
+      await ctx.reply(error.message, extraReplyOptions);
+    }
   }
 }

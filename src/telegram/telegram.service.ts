@@ -134,22 +134,7 @@ export class TelegramService extends Telegraf<Context> {
     if (instagramLinkRegex.test(message)) {
       await this.instagramService.instagramDownload(message, ctx);
     } else if (tiktokLinkRegex.test(message)) {
-      const { data } = await this.tiktokService.tiktokDownload(message);
-
-      if (data?.images) {
-        const group: MediaGroup = data.images.map((img) => ({
-          type: 'photo',
-          media: img,
-        }));
-
-        ctx.replyWithMediaGroup(group, {
-          reply_to_message_id: ctx.message.message_id,
-        });
-      } else {
-        ctx.replyWithVideo(data.play, {
-          reply_to_message_id: ctx.message.message_id,
-        });
-      }
+      await this.tiktokService.tiktokDownload(message, ctx);
     }
   }
 }
