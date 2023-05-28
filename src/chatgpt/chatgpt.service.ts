@@ -51,11 +51,8 @@ export class ChatgptService {
           ),
       );
 
-      console.log(data);
-
       return data.text;
     } catch (err) {
-      console.log(err);
       return false;
     }
   }

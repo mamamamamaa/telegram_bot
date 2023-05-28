@@ -28,28 +28,33 @@ export class InstagramService {
   }
 
   async instagramDownload(url: string, ctx: Context) {
-    if (typeof res === 'string') {
-      ctx.replyWithVideo(res, {
-        reply_to_message_id: ctx.message.message_id,
-      });
-    } else {
-      const group: MediaGroup = res.map((img) => ({
+    const extraReplyOptions = {
+      reply_to_message_id: ctx.message.message_id,
+    };
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(this.instagramApiUrl, this.options).pipe(
+          catchError((err) => {
+            this.logger.error(err);
+            return of(err.response.statusText);
+          }),
+        ),
+      );
+
+      if (typeof data.media === 'string') {
+        await ctx.replyWithVideo(data.media, extraReplyOptions);
+        return;
+      }
+
+      const group: MediaGroup = data.media.map((img) => ({
         type: 'photo',
         media: img,
       }));
-      ctx.replyWithMediaGroup(group, {
-        reply_to_message_id: ctx.message.message_id,
-      });
-    }
 
-    const { data } = await firstValueFrom(
-      this.httpService.get(this.instagramApiUrl, options).pipe(
-        catchError((err) => {
-          this.logger.error(err);
-          return of(err.response.statusText);
-        }),
-      ),
-    );
-    return data.media;
+      await ctx.replyWithMediaGroup(group, extraReplyOptions);
+    } catch (error) {
+      await ctx.reply(error.message, extraReplyOptions);
+    }
   }
 }
