@@ -8,26 +8,23 @@ import { MediaGroup } from 'telegraf/typings/telegram-types';
 @Injectable()
 export class InstagramService {
   private readonly logger = new Logger(InstagramService.name);
-  private readonly rapidApiKey: string;
-  private readonly options: {
-    params: {
-      url: string;
-      headers: {
-        'X-RapidAPI-Key': string;
-        'X-RapidAPI-Host': string;
-      };
-    };
-  };
-
+  private readonly options: IReqOptions;
   private readonly instagramApiUrl =
     'https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index';
-  private readonly instagramApiHost =
-    'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com';
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.rapidApiKey = configService.get('RAPID_API_V4');
+    this.options = {
+      params: {
+        url: null,
+        headers: {
+          'X-RapidAPI-Host':
+            'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com',
+          'X-RapidAPI-Key': configService.get('RAPID_API_V4'),
+        },
+      },
+    };
   }
 
   async instagramDownload(url: string, ctx: Context) {
