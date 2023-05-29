@@ -2,23 +2,14 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom, of } from 'rxjs';
-import {
-  ChatGptResponse,
-  ImageGenerateResponse,
-  TranscribeAudioResponse,
-} from '@/types/chatgpt';
-import * as FormData from 'form-data';
-
-import * as fs from 'fs';
+import { ChatGptResponse, ImageGenerateResponse } from '@/types/chatgpt';
 
 @Injectable()
-export class ChatgptService {
-  private readonly logger = new Logger(ChatgptService.name);
+export class OpenAiService {
+  private readonly logger = new Logger(OpenAiService.name);
   private readonly chatGptUrl = 'https://api.openai.com/v1/chat/completions';
   private readonly imageGenerationUrl =
     'https://api.openai.com/v1/images/generations';
-  private readonly audioTranscribesUrl =
-    'https://api.openai.com/v1/audio/transcriptions';
 
   constructor(
     private readonly configService: ConfigService,
@@ -29,32 +20,6 @@ export class ChatgptService {
     this.httpService.axiosRef.defaults.headers.common = {
       Authorization: `Bearer ${apiKey}`,
     };
-  }
-
-  async transcribeAudio(uploadFilePath: string): Promise<string | false> {
-    try {
-      const formData = new FormData();
-      formData.append('file', await fs.createReadStream(uploadFilePath));
-      formData.append('model', 'whisper-1');
-
-      const { data } = await firstValueFrom(
-        this.httpService
-          .post<TranscribeAudioResponse>(this.audioTranscribesUrl, formData, {
-            headers: formData.getHeaders(),
-          })
-          .pipe(
-            catchError((err) => {
-              console.log(err.response.data);
-              this.logger.error(err);
-              return of(err.response.statusText);
-            }),
-          ),
-      );
-
-      return data.text;
-    } catch (err) {
-      return false;
-    }
   }
 
   async generateChatResponse(content: string): Promise<string> {

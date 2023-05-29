@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TelegramModule } from './telegram/telegram.module';
 import { ConfigModule } from '@nestjs/config';
-import { ChatgptModule } from './chatgpt/chatgpt.module';
+import { OpenAiModule } from '@/openAi/openAi.module';
 import { InstagramModule } from './instagram/instagram.module';
 import { TiktokModule } from './tiktok/tiktok.module';
 
@@ -9,7 +9,7 @@ import { TiktokModule } from './tiktok/tiktok.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TelegramModule,
-    ChatgptModule,
+    OpenAiModule,
     InstagramModule,
     TiktokModule,
   ],
