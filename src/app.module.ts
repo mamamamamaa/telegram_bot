@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { OpenAiModule } from '@/openAi/openAi.module';
 import { InstagramModule } from './instagram/instagram.module';
 import { TiktokModule } from './tiktok/tiktok.module';
+import { YoutubeModule } from './youtube/youtube.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { TiktokModule } from './tiktok/tiktok.module';
     OpenAiModule,
     InstagramModule,
     TiktokModule,
+    YoutubeModule,
   ],
 })
 export class AppModule {}

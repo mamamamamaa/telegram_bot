@@ -100,6 +100,8 @@ export class TelegramService extends Telegraf<Context> {
 
   @On('text')
   async socialMedia(@Message('text') message: string, @Ctx() ctx: Context) {
+    const formattedMessage = new URL(message);
+    console.log(formattedMessage);
     if (instagramLinkRegex.test(message)) {
       await this.instagramService.instagramDownload(message, ctx);
     } else if (tiktokLinkRegex.test(message)) {
