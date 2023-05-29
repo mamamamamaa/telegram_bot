@@ -6,6 +6,7 @@ import { OpenAiModule } from '@/openAi/openAi.module';
 import { InstagramModule } from '@/instagram/instagram.module';
 import { TiktokModule } from '@/tiktok/tiktok.module';
 import { HttpModule } from '@nestjs/axios';
+import { YoutubeModule } from '@/youtube/youtube.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { HttpModule } from '@nestjs/axios';
     InstagramModule,
     TiktokModule,
     HttpModule,
+    YoutubeModule,
   ],
   providers: [TelegramService],
 })

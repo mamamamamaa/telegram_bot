@@ -4,7 +4,12 @@ import { ConfigService } from '@nestjs/config';
 import { OpenAiService } from '@/openAi/openAi.service';
 import { InstagramService } from '@/instagram/instagram.service';
 import { TiktokService } from '@/tiktok/tiktok.service';
-import { instagramLinkRegex, tiktokLinkRegex } from '@/utils/regexs';
+import {
+  instagramLinkRegex,
+  tiktokLinkRegex,
+  youtubeShortsLinkRegex,
+} from '@/utils/regexs';
+import { YoutubeService } from '@/youtube/youtube.service';
 
 export type Context = Scenes.SceneContext;
 
@@ -15,6 +20,7 @@ export class TelegramService extends Telegraf<Context> {
     private readonly openAiService: OpenAiService,
     private readonly instagramService: InstagramService,
     private readonly tiktokService: TiktokService,
+    private readonly youtubeService: YoutubeService,
   ) {
     super(configService.get('TELEGRAM_API'));
   }
@@ -100,12 +106,12 @@ export class TelegramService extends Telegraf<Context> {
 
   @On('text')
   async socialMedia(@Message('text') message: string, @Ctx() ctx: Context) {
-    const formattedMessage = new URL(message);
-    console.log(formattedMessage);
     if (instagramLinkRegex.test(message)) {
       await this.instagramService.instagramDownload(message, ctx);
     } else if (tiktokLinkRegex.test(message)) {
       await this.tiktokService.tiktokDownload(message, ctx);
+    } else if (youtubeShortsLinkRegex.test(message)) {
+      await this.youtubeService.downloadYoutubeShorts(message, ctx);
     }
   }
 }
