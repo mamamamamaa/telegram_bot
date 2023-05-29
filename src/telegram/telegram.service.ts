@@ -7,6 +7,7 @@ import { TiktokService } from '@/tiktok/tiktok.service';
 import {
   instagramLinkRegex,
   tiktokLinkRegex,
+  youtubeMusicLinkRegex,
   youtubeShortsLinkRegex,
 } from '@/utils/regexs';
 import { YoutubeService } from '@/youtube/youtube.service';
@@ -111,7 +112,9 @@ export class TelegramService extends Telegraf<Context> {
     } else if (tiktokLinkRegex.test(message)) {
       await this.tiktokService.tiktokDownload(message, ctx);
     } else if (youtubeShortsLinkRegex.test(message)) {
-      await this.youtubeService.downloadYoutubeShorts(message, ctx);
+      await this.youtubeService.downloadShorts(message, ctx);
+    } else if (youtubeMusicLinkRegex.test(message)) {
+      await this.youtubeService.downloadMusic(message, ctx);
     }
   }
 }

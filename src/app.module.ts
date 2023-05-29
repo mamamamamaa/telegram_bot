@@ -5,6 +5,7 @@ import { OpenAiModule } from '@/openAi/openAi.module';
 import { InstagramModule } from './instagram/instagram.module';
 import { TiktokModule } from './tiktok/tiktok.module';
 import { YoutubeModule } from './youtube/youtube.module';
+import { ConversionModule } from './conversion/conversion.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { YoutubeModule } from './youtube/youtube.module';
     InstagramModule,
     TiktokModule,
     YoutubeModule,
+    ConversionModule,
   ],
 })
 export class AppModule {}
