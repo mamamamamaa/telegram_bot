@@ -41,14 +41,15 @@ export class TiktokService {
           .get<TiktokResponse>(this.tiktokApiUrl, this.options)
           .pipe(
             catchError((err) => {
+              console.log(err);
               this.logger.error(err);
               return of(err.response.statusText);
             }),
           ),
       );
 
-      if (!reqData.reqData?.images) {
-        await ctx.replyWithVideo(reqData.play, extraReplyOptions);
+      if (!reqData.data?.images) {
+        await ctx.replyWithVideo(reqData.data.play, extraReplyOptions);
         return;
       }
 
