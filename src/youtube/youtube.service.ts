@@ -634,7 +634,6 @@ const resData = {
     },
   ],
 };
-import * as fs from 'fs';
 
 @Injectable()
 export class YoutubeService {
@@ -685,6 +684,7 @@ export class YoutubeService {
   async downloadMusic(url: string, ctx: Context) {
     const extraReplyOptions = {
       reply_to_message_id: ctx.message.message_id,
+      thumb: { url: null },
     };
 
     const { searchParams } = new URL(url);
@@ -701,11 +701,15 @@ export class YoutubeService {
         ),
       );
 
+      const filename = data.title;
       const url = data.formats.at(-1).url;
+      const coverImage = data.thumbnail.at(-1).url;
+
+      extraReplyOptions.thumb.url = coverImage;
 
       const path = await this.conversionService.converseVideoToAudio(url);
 
-      await ctx.replyWithAudio({ source: path }, extraReplyOptions);
+      await ctx.replyWithAudio({ source: path, filename }, extraReplyOptions);
     } catch (error) {
       await ctx.reply(error.message, extraReplyOptions);
     }
