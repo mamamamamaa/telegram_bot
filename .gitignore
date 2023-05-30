@@ -5,6 +5,10 @@
 # ENV
 .env
 
+# TEMP
+temp/*
+!temp/.gitkeep
+
 # LOCK
 yarn.lock
 

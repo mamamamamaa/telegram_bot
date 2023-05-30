@@ -12,3 +12,6 @@ yarn.lock
 .eslintrc.js
 
 Dockerfile
+
+temp/*
+!temp/.gitkeep
