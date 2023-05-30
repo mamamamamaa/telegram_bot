@@ -11,6 +11,20 @@ export class ConversionService {
   constructor(private readonly httpService: HttpService) {
     ffmpeg.setFfmpegPath(ffmpegPath.path);
   }
+
+  async promisifyConverse(
+    inputPath: string,
+    outputPath: string,
+    format: string,
+  ) {
+    return new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+        .toFormat(format)
+        .on('end', () => resolve(true))
+        .on('error', (err: Error) => reject(new Error(err.message)))
+        .save(outputPath);
+    });
+  }
   async converseVideoToAudio(videoUrl: string) {
     const { data } = await firstValueFrom(
       this.httpService.get(videoUrl, { responseType: 'arraybuffer' }),
@@ -21,11 +35,7 @@ export class ConversionService {
 
     await fs.writeFileSync(inputPath, data);
 
-    await ffmpeg(inputPath)
-      .toFormat('mp3')
-      .on('end', () => console.log('Success!'))
-      .on('error', (err) => console.log(err.message))
-      .save(outputPath);
+    await this.promisifyConverse(inputPath, outputPath, 'mp3');
 
     return outputPath;
   }
