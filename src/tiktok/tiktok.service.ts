@@ -52,6 +52,7 @@ export class TiktokService {
         return;
       }
 
+      console.log(reqData);
       const group: MediaGroup = reqData.data.images.map((img) => ({
         type: 'photo',
         media: img,
