@@ -23,7 +23,7 @@ export class InstagramService {
       headers: {
         'X-RapidAPI-Host':
           'instagram-downloader-download-instagram-videos-stories.p.rapidapi.com',
-        'X-RapidAPI-Key': configService.get('RAPID_API_V4'),
+        'X-RapidAPI-Key': configService.get('RAPID_API_V1'),
       },
     };
   }
